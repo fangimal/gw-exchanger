@@ -4,6 +4,7 @@ go 1.25
 
 require (
 	github.com/ilyakaznacheev/cleanenv v1.5.0
+	github.com/sirupsen/logrus v1.9.4
 	google.golang.org/grpc v1.78.0
 	google.golang.org/protobuf v1.36.11
 )
