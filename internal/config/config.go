@@ -8,7 +8,8 @@ import (
 )
 
 type Config struct {
-	GRPC struct {
+	LogIsDebug *bool `yaml:"log_is_debug" env-default:"true"`
+	GRPC       struct {
 		Port string `yaml:"port" env-default:"50051"`
 	} `yaml:"grpc"`
 	Storage StorageConfig `yaml:"storage"`
