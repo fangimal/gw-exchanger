@@ -16,11 +16,11 @@ type Config struct {
 }
 
 type StorageConfig struct {
-	DBHost     string `yaml:"host" env-default:"localhost"`
-	DBPort     string `yaml:"port" env-default:"5432"`
-	DBUser     string `yaml:"username" env-default:"wallet_user"`
-	DBPassword string `yaml:"password" env-default:"123"`
-	DBName     string `yaml:"database" env-default:"wallet_db"`
+	Host     string `yaml:"host" env-default:"localhost"`
+	Port     string `yaml:"port" env-default:"5432"`
+	User     string `yaml:"username" env-default:"wallet_user"`
+	Password string `yaml:"password" env-default:"123"`
+	Name     string `yaml:"database" env-default:"wallet_db"`
 }
 
 var instance *Config
