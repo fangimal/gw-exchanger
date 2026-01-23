@@ -3,6 +3,8 @@ package repository
 import (
 	"context"
 	"fmt"
+	"gw-exchanger/pkg/repeatable"
+	"time"
 
 	"gw-exchanger/internal/config"
 	"gw-exchanger/internal/db"
@@ -25,15 +27,28 @@ func NewPostgresRepository(ctx context.Context, cfg *config.StorageConfig, log *
 		cfg.Port,
 		cfg.Name,
 	)
+	maxAttempts := 3
+	var pool *pgxpool.Pool
+	err := repeatable.DoWithTries(func() error {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, 5*time.Second)
+		defer cancel()
 
-	pool, err := pgxpool.New(ctx, dsn)
+		var err error
+		pool, err = pgxpool.New(ctx, dsn)
+		if err != nil {
+			return err
+		}
+		return nil
+	}, maxAttempts, 5*time.Second)
+
 	if err != nil {
-		log.Fatalf("unable to create pgxpool: %v", err)
+		log.Fatal("error do with tries postgresql")
 	}
 
-	if err = pool.Ping(ctx); err != nil {
+	/*if err = pool.Ping(ctx); err != nil {
 		log.Fatalf("unable to ping database: %v", err)
-	}
+	}*/
 
 	log.Info("connected to PostgreSQL")
 
