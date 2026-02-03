@@ -1,0 +1,9 @@
+log_is_debug: true
+grpc:
+  port: 50052
+storage:
+  host: api_postgres
+  port: 5432
+  username: postgres
+  password: postgres
+  database: postgres

@@ -39,16 +39,19 @@ func NewPostgresRepository(ctx context.Context, cfg *config.StorageConfig, log *
 		if err != nil {
 			return err
 		}
+
+		//Проверяем подключение
+		if err = pool.Ping(ctx); err != nil {
+			pool.Close()
+			log.Fatalf("unable to ping database: %s, %v", dsn, err)
+			return err
+		}
 		return nil
 	}, maxAttempts, 5*time.Second)
 
 	if err != nil {
 		log.Fatal("error do with tries postgresql")
 	}
-
-	/*if err = pool.Ping(ctx); err != nil {
-		log.Fatalf("unable to ping database: %v", err)
-	}*/
 
 	log.Info("connected to PostgreSQL")
 
@@ -59,7 +62,8 @@ func NewPostgresRepository(ctx context.Context, cfg *config.StorageConfig, log *
 }
 
 func (r *PostgresRepository) GetRates() ([]db.ExchangeRate, error) {
-	rows, err := r.pool.Query(context.Background(), "SELECT from_currency, to_currency, rate FROM exchange_rates")
+	sql := "SELECT from_currency, to_currency, rate FROM exchange_rates"
+	rows, err := r.pool.Query(context.Background(), sql)
 	if err != nil {
 		r.log.Errorf("failed to query rates: %v", err)
 		return nil, fmt.Errorf("failed to query rates: %w", err)
@@ -69,7 +73,7 @@ func (r *PostgresRepository) GetRates() ([]db.ExchangeRate, error) {
 	var rates []db.ExchangeRate
 	for rows.Next() {
 		var rate db.ExchangeRate
-		if err := rows.Scan(&rate.FromCurrency, &rate.ToCurrency, &rate.Rate); err != nil {
+		if err = rows.Scan(&rate.FromCurrency, &rate.ToCurrency, &rate.Rate); err != nil {
 			r.log.Errorf("failed to scan row: %v", err)
 			return nil, fmt.Errorf("failed to scan row: %w", err)
 		}
